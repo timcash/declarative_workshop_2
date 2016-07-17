@@ -1,0 +1,20 @@
+{
+  "name": "endpoint",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo 'no tests'",
+    "start": "docker-compose run --rm endpoint",
+    "exec": "docker-compose run --rm endpoint /bin/bash",
+    "build": "docker-compose build",
+    "dev": "docker-compose up --remove-orphans",
+    "remove-nones": "docker rmi $(docker images | grep '^<none>' | awk '{print $3}')"
+  },
+  "keywords": ["docker", "nodejs"],
+  "author": "Tim Cash",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.9.2"
+  }
+}

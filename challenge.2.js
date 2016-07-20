@@ -135,3 +135,28 @@ test.skip('pipe', t => {
     [2, 4]
   )
 })
+
+// I think you get the point
+test.skip('mergeAll', t => {
+  const input     = [{key1:{one:1}}, {key2:{two:2}}]
+  const expected  = {key1:{one:1}, key2:{two:2}}
+  const result = undefined
+  t.deepEqual(result, expected)
+})
+
+test.skip('values and reduce', t => {
+  const input     = {one:1, two:2, three:3}
+  const expected  = 6
+  const result = undefined
+  t.deepEqual(result, expected)
+})
+
+// you may need to import more tools from Ramada
+// you can also use R.anyramdafunction
+// like R.without
+test.skip('Try to use a pipe', t => {
+  const input     = ['Carl Manaster', 'Carl Sagan  ', '  Carl Friedrich Gauss']
+  const expected  = {Manaster:12, Sagan:9, Gauss:18}
+  const result = undefined
+  t.deepEqual(result, expected)
+})

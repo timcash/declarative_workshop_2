@@ -1,13 +1,4 @@
-endpoint-start:
-  build: .
-  command: node index.js
-  environment:
-    NODE_ENV: development
-  volumes:
-    - .:/home/app
-    - /home/app/node_modules
-
-endpoint-test:
+endpoint:
   build: .
   command: ./node_modules/.bin/ava --watch
   environment:

@@ -1,6 +1,15 @@
-endpoint:
+endpoint-start:
   build: .
-  command: node_modules/.bin/nodemon index.js
+  command: node index.js
+  environment:
+    NODE_ENV: development
+  volumes:
+    - .:/home/app
+    - /home/app/node_modules
+
+endpoint-test:
+  build: .
+  command: ./node_modules/.bin/ava --watch
   environment:
     NODE_ENV: development
   volumes:

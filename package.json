@@ -4,17 +4,32 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'no tests'",
+    "test": "./node_modules/.bin/ava",
     "start": "docker-compose run --rm endpoint",
     "exec": "docker-compose run --rm endpoint /bin/bash",
     "build": "docker-compose build",
-    "dev": "docker-compose up --remove-orphans",
     "remove-nones": "docker rmi $(docker images | grep '^<none>' | awk '{print $3}')"
   },
-  "keywords": ["docker", "nodejs"],
+  "keywords": [
+    "docker",
+    "nodejs"
+  ],
   "author": "Tim Cash",
   "license": "ISC",
+  "dependencies": {
+    "ramda": "^0.21.0"
+  },
   "devDependencies": {
+    "ava": "^0.15.2",
     "nodemon": "^1.9.2"
+  },
+  "ava": {
+    "files": [
+      "challenge.*.js"
+    ],
+    "failFast": true,
+    "babel": {
+      "presets": []
+    }
   }
 }

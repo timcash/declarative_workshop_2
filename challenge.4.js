@@ -30,56 +30,128 @@ const set       = (k, v, record) => {
 
 // ==============================================
 //
+//                  SCENARIO
+//
+// ==============================================
+
+/*
+  The task is to build an api to save customers to a database.
+  Below I will attempt to show some reasoning around partial application
+  and how it can integrate with a TDD workflow.
+
+  A customer will have an ID and an AGE like
+  {id: 'timbob', age: 35}
+  This should be all we need to now to buid the database layer
+
+  Highlights of Parial Application and Curry
+    - Create simple tests without any knowledge of the larger system
+      - This encourages TDD
+    - Create functions that use late binding
+      - Send in any method that follows the interface
+    - Create functions that have few dependencies
+      - Easy to refacor and move into other modules
+    - Create functions that can takes arguments as they thread through a program
+      - Prevents needing to have all arguments at high and low levels,
+        supply what you need when you have it
+*/
+
+// ==============================================
+//
 //               OUR DATABASE
 //
 // ==============================================
 
-class Database {
+// A really simple Database engine, I call it SimpleDB
+// This thing will do a million writes per second!
+class simpleDB {
   constructor() {
     this.store = {}
   }
 
   set(k , v) {
     this.store[k] = v
+    return true
   }
 
   get(k) {
     return this.store[k]
   }
-
-  query(a_fake_query) {
-    return {
-      timbob: {id: 'timbob', age: 35, score:85.5},
-      joesmoe: {id: 'joesmoe', age: 46, score: 99.3}
-    }
-  }
 }
 
-// ==============================================
-//
-//               OUR MODEL
-//
-// ==============================================
+// Make a function that saves a customer to a simpleDB, notice I pass in the
+// database to save to instead of calling something like myDB.save(customer)
+const simpleCustomerSaver = curry((db, customer) => {
+  return db.set(customer.id, customer)
+})
 
+// Let us write a test to save a customer to a database
+test('should save a customer', t => {
+
+  // test setup
+  const myDb = new simpleDB({fake_connection_info: '127.0.0.1'})
+  const myCustomer = {id: 'timbob', age: 35}
+
+  // Here I supply only the database to use. This is to demonstrate
+  // how it may be used in production code and that this function
+  // could be passed into other components ready to save customers
+  // without needing to initialize or connect to the database again
+  const mySimpleSaver = simpleCustomerSaver(myDb)
+
+  // Try it out
+  mySimpleSaver(myCustomer)
+
+  // I should now be able to get the same customer back out of the database
+  // Ill use the database directly to verify this
+  t.deepEqual(myDb.get(myCustomer.id), myCustomer)
+})
+
+// Awesome, now we know our simpleCustomerSaver works!
+
+// ==============================================
+//
+//               OUR CUSTOMER CLASS
+//
+// ==============================================
 
  /*
-  A customer with event hooks, notice I have not embeded
-  any logic about how to save or what database to use. Instead
-  I will pass in a function for a Customer to use when 'clicked'
-  This delays any binding and makes the Customer a 'dumb' component
+  Have a look at our customer class with event hooks.
+  Notice I have not embeded any logic about how to save or what database to use.
+  Instead I will pass in a function for a Customer to use when 'clicked'.
+  This delays any binding and makes the Customer a 'dumb' component.
+  Ignore getFriends for now. We will come back to this later
 */
 
 class Customer {
   constructor(onSave, getFriends, id, age) {
-    this.save = onSave
-    this.id = id
-    this.age = age
+    this.save     = onSave
+    this.friends  = getFriends
+    this.id       = id
+    this.age      = age
   }
 
-  clicked () {
+  saveClicked () {
     this.save({id: this.id, age: this.age})
   }
+
+  viewClicked () {
+    return this.friends(this.id)
+  }
 }
+
+// Now to test using the customer and its saveClicked function
+// with our simpleCustomerSaver from above
+test('should save a customer using the saveClicked', t => {
+
+  // test setup
+  const myDb = new simpleDB({fake_connection_info: '127.0.0.1'})
+  const myCustomer = {id: 'timbob', age: 35}
+
+  // just like above lets fill in the first argument to simpleCustomerSaver
+  const mySimpleSaver = simpleCustomerSaver(myDb)
+
+
+})
+
 
 // ==============================================
 //
@@ -90,15 +162,13 @@ class Customer {
 /*
   Task
   Make a customer save only if it passes a filter test
-*/
 
-/*
   Instead of thinking about how to hook up everything in the
   program write a generic function that takes everything it needs
   as arguments. For example
 */
 
-// (customer) -> (customer) -> customer -> bool
+// (customer -> bool) -> (customer -> bool) -> customer -> bool
 const saveCustomerFiltered = curry((dbWriter, filter, customer) => {
   if (filter(customer)) return dbWriter(customer)
   return false
@@ -111,11 +181,11 @@ const saveCustomerFiltered = curry((dbWriter, filter, customer) => {
   meaning it has no dependencies. Let us write a generic test for it now.
 */
 
-test('should true or false depending on the filter', t => {
+test('should be true or false depending on the filter', t => {
   // I can see above that a dbWriter takes one argument and needs to return a bool
-  const myDbWriter = (c) => true
+  const myDbWriter = c => true
   // Filter also takes a customer and returns a bool
-  const myFilter = (c) => c.age > 21
+  const myFilter = c => c.age > 21
   // and last I will need a customer
   const myCustomer1 = {id: 'tim', age: 35}
   const myCustomer2 = {id: 'jen', age: 20}
@@ -127,10 +197,7 @@ test('should true or false depending on the filter', t => {
   t.deepEqual(result2, false)
 })
 
-// Redis Adapters (make it easy to use)
-const redisWriteCustomer = (db, customer) => {
-  return db.set(customer.id, customer)
-}
+
 
 
 

@@ -1,8 +1,15 @@
-endpoint:
-  build: .
-  command: ./node_modules/.bin/ava --watch
-  environment:
-    NODE_ENV: development
-  volumes:
-    - .:/home/app
-    - /home/app/node_modules
+version: '2'
+services:
+  endpoint:
+    build: .
+    command: ./node_modules/.bin/ava --watch
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/home/app
+      - /home/app/node_modules
+    depends_on:
+      - redis
+
+  redis:
+    image: redis

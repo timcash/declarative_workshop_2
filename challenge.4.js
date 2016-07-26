@@ -46,6 +46,8 @@ const set       = (k, v, record) => {
   Highlights of Parial Application and Curry
     - Create simple tests without any knowledge of the larger system
       - This encourages TDD
+      - Reduce the need to mock (multi layer objects)
+      - Reduce the need to stub and spy
     - Create functions that use late binding
       - Send in any method that follows the interface
     - Create functions that have few dependencies
@@ -53,6 +55,7 @@ const set       = (k, v, record) => {
     - Create functions that can takes arguments as they thread through a program
       - Prevents needing to have all arguments at high and low levels,
         supply what you need when you have it
+    - Create code that can change!
 */
 
 // ==============================================
@@ -79,7 +82,7 @@ class simpleDB {
 }
 
 // Make a function that saves a customer to a simpleDB, notice I pass in the
-// database to save to instead of calling something like myDB.save(customer)
+// database instead of calling something like myDB.save(customer)
 const simpleCustomerSaver = curry((db, customer) => {
   return db.set(customer.id, customer)
 })
@@ -102,7 +105,9 @@ test('should save a customer', t => {
 
   // I should now be able to get the same customer back out of the database
   // Ill use the database directly to verify this
-  t.deepEqual(myDb.get(myCustomer.id), myCustomer)
+  const result = myDb.get(myCustomer.id)
+  const expected = myCustomer
+  t.deepEqual(result, expected)
 })
 
 // Awesome, now we know our simpleCustomerSaver works!
@@ -136,20 +141,31 @@ class Customer {
   viewClicked () {
     return this.friends(this.id)
   }
+
+  getAsRecord() {
+    return {id: this.id, age: this.age}
+  }
 }
 
-// Now to test using the customer and its saveClicked function
+// Now to test the Customer class and its saveClicked function
 // with our simpleCustomerSaver from above
 test('should save a customer using the saveClicked', t => {
 
   // test setup
   const myDb = new simpleDB({fake_connection_info: '127.0.0.1'})
-  const myCustomer = {id: 'timbob', age: 35}
 
   // just like above lets fill in the first argument to simpleCustomerSaver
   const mySimpleSaver = simpleCustomerSaver(myDb)
+  // and pass it into Customer
+  const myCustomer = new Customer(mySimpleSaver, () => {}, 'timbob', 35)
+  // now try the function we want to test
+  myCustomer.saveClicked()
 
-
+  // I should now be able to get the same customer back out of the database
+  // Ill use the database directly to verify this
+  let result    = myDb.get(myCustomer.id)
+  let expected  = myCustomer.getAsRecord()
+  t.deepEqual(result, expected)
 })
 
 
@@ -197,10 +213,6 @@ test('should be true or false depending on the filter', t => {
   t.deepEqual(result2, false)
 })
 
-
-
-
-
 // A fake main function
 const main = () => {
 
@@ -228,13 +240,3 @@ const LogIt = (thing) => {
   console.log(thing)
   return thing
 }
-
-// ==============================================
-//
-//               OUR TESTS
-//
-// ==============================================
-
-test.skip('should save a customer to redis', t => {
-
-})

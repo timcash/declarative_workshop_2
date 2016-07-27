@@ -156,8 +156,10 @@ test('should save a customer using the saveClicked', t => {
 
   // just like above lets fill in the first argument to simpleCustomerSaver
   const mySimpleSaver = simpleCustomerSaver(myDb)
+
   // and pass it into Customer
   const myCustomer = new Customer(mySimpleSaver, () => {}, 'timbob', 35)
+
   // now try the function we want to test
   myCustomer.saveClicked()
 

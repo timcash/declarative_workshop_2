@@ -28,6 +28,8 @@ const set       = (k, v, record) => {
   record[k] = v
   return record
 }
+const getAmount = () => {// a fake function ...}
+const fetch     = () => {// a fake function ...}
 
 // ==============================================
 //
@@ -349,9 +351,14 @@ const LogIt = (thing) => {
   return thing
 }
 
-const pipedOnSaver4 = pipe(isValid_Pass, oldEnough_Pass, LogIt, simpleCustomerSaver)
+const pipedOnSaver4 = pipe(
+  isValid_Pass,
+  oldEnough_Pass,
+  LogIt,
+  simpleCustomerSaver
+)
 
-  // Maybe you can see how you would add error handling to the pipeline
+// Maybe you can see how you would add error handling to the pipeline
 
 // There is a more advanced way to deal with empty objects and non passing
 // filters / validation / error handling. For example pipe could stop sending the
@@ -364,18 +371,68 @@ const pipedOnSaver4 = pipe(isValid_Pass, oldEnough_Pass, LogIt, simpleCustomerSa
 // can free one from needing to understand anyting other than the function one
 // is working on. Here are a few "Rules of Thumb" to follow when using curry
 
-// #1 put data arguments at the end of the argumnet list
+// =======================
+//          #1
+// =======================
+// Put data arguments at the end of the argumnet list
+// instead of this
+const fn1_1 = (data_to_filter, testFunction) => {
+  //...
+}
+// do this
+const fn1_2 = (testFunction, data_to_filter) => {
+  //...
+}
+// This pattern will make working with curry and pipe more simple
+// to reason about
 
-// #2 dont pass through arguments that just get passed on again like
-const fn1 = (myFunc1, myFunc2, myData1, myData2) => {
-  const val1 = myFunc1(myFunc2, myData1)
+// =======================
+//          #2
+// =======================
+// Do not pass through arguments that just get passed on again like
+const fn2_1 = (getAmount, fetch, url, myData2) => {
+  const val1 = getAmount(fetch, url)
   return myData2 + val1
 }
 // instead curry in myFunc2 ahead of time. This will keep your argment list short
-// and make things easy to test
+// and make things easy to test. Like this
+const amountGetter = getAmount(fetch)
 
-// #3 pass in
-const fn2 = (customer) => {
+const fn2_2 = (amountGetter, url, myData2) => {
+  const val1 = amountGetter(url)
+  return myData2 + val1
+}
+
+// =======================
+//          #3
+// =======================
+// Pass in all function that deal with side effects e.g. Time, Random,
+// network calls and database calls, that way they can be manipulated
+// in tests and debugging
+// instead of something like this
+const fn3_1 = (customer) => {
   customer.created_at = Date.now()
   return customer
 }
+
+// do something like this
+const fn3_2 = (now, customer) => {
+  customer.created_at = now()
+  return customer
+}
+
+// =======================
+//          #4
+// =======================
+// Pass in the function you want to use and not some larger object
+// with many properties
+const fn4_1 = (myDataDriver, customer) => {
+  return myDataDriver.instance.save(customer)
+}
+
+// instead do something like this
+const fn4_2 = (save, customer) => {
+  return save(customer)
+}
+// when you build tests and want to change code you will find this
+// pattern prevents needing to know about dataDriver.instance.save

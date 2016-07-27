@@ -139,10 +139,10 @@ test.skip('should save a customer', t => {
 class Customer {
   constructor(onSave, id, age) {
     this.save     = onSave
-  //this.friends  = getFriends
-  //this.saveFriend = saveAFriend
     this.id       = id
     this.age      = age
+  //this.friends  = getFriends
+  //this.saveFriend = saveAFriend
   }
 
   saveClicked () {
@@ -157,6 +157,7 @@ class Customer {
   //   return this.saveFriend(friend)
   // }
 
+  // A helper function
   getAsRecord() {
     return {id: this.id, age: this.age}
   }
@@ -306,17 +307,19 @@ const saveValidatedCustomerFiltered = curry((dbWriter, validate, filter, custome
 // They take a customer and return a bool. This seems like it could be useful
 // Let us think about our friend the pipe function. Would it be cool if
 // we could do something like the following?
+let myDb1       = new simpleDB()
+const mySaver   = simpleCustomerSaver(myDb1)
 const isValid   = c => c.id && c.age
 const oldEnough = c => c.age > 21
 
-const pipedOnSaver = pipe(isValid, oldEnough, simpleCustomerSaver)
+const pipedOnSaver = pipe(isValid, oldEnough, mySaver)
 // and use it like this
 // pipedOnSaver(myCustomer)
 
 // Remember that pipe returns a function with one argument waiting to be
 // supplied and that argument will be passed into the first function in the
 // list and its return will be passed into the next argument.
-// But the function above is not correct. isValid, oldEnough, and simpleCustomerSaver
+// But the function above is not correct. isValid, oldEnough, and mySaver
 // all return a bool and take a customer. So isValid needs to somehow pass
 // the customer on if it passes the test.
 
@@ -333,13 +336,26 @@ const passIF = curry((f, input) => {
 // to f, then if it passes we return the original input, if it does not pass we
 // return an empty object
 // now we can make our pipe function
-const pipedOnSaver2 = pipe(passIF(isValid), passIF(oldEnough), simpleCustomerSaver)
+const pipedOnSaver2 = pipe(passIF(isValid), passIF(oldEnough), mySaver)
 
 // Or maybe if I use a convention like adding a _Pass to the end of a function
 // I could make it look a bit nicer
 const isValid_Pass    = passIF(isValid)
 const oldEnough_Pass  = passIF(oldEnough)
-const pipedOnSaver3   = pipe(isValid_Pass, oldEnough_Pass, simpleCustomerSaver)
+const pipedOnSaver3   = pipe(isValid_Pass, oldEnough_Pass, mySaver)
+
+// Time to test it out
+test.skip('our pipeline should work', t => {
+  // A simple record to pass through the pipeline
+  const myCustomer = {id:'Jane', age:22}
+  // The result of the pipeline
+  const pipeResult = pipedOnSaver3(myCustomer)
+  // did the record make it into the database ?
+  const dataResult = myDb1.get(myCustomer.id)
+
+  t.deepEqual(pipeResult, true)
+  t.deepEqual(dataResult, myCustomer)
+})
 
 // pipedOnSaver3 is pretty cool. Easy to read and easy to change
 // Let us make a small change now. Add some logging with my simple
@@ -355,7 +371,7 @@ const pipedOnSaver4 = pipe(
   isValid_Pass,
   oldEnough_Pass,
   LogIt,
-  simpleCustomerSaver
+  mySaver
 )
 
 // Maybe you can see how you would add error handling to the pipeline

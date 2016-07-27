@@ -351,7 +351,7 @@ const LogIt = (thing) => {
 
 const pipedOnSaver4 = pipe(isValid_Pass, oldEnough_Pass, LogIt, simpleCustomerSaver)
 
-// Maybe you can see how you would add error handling to the pipeline
+  // Maybe you can see how you would add error handling to the pipeline
 
 // There is a more advanced way to deal with empty objects and non passing
 // filters / validation / error handling. For example pipe could stop sending the
@@ -374,8 +374,8 @@ const fn1 = (myFunc1, myFunc2, myData1, myData2) => {
 // instead curry in myFunc2 ahead of time. This will keep your argment list short
 // and make things easy to test
 
-// #3 pass in 
-const fn2 = (customer) {
+// #3 pass in
+const fn2 = (customer) => {
   customer.created_at = Date.now()
   return customer
 }

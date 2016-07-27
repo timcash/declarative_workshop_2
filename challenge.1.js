@@ -68,18 +68,18 @@ test.skip('Imperative keyer', t => {
 // Use the "input" and "expected" data from above to pass this test
 test.skip('Imperative 1', t => {
 
-  const r1 = imperativeTranformer1(input)
-  t.deepEqual(r1, expected)
+  const result = imperativeTranformer1(input)
+  t.deepEqual(result, expected)
 })
 
 // Now add the ability to define which keys to convert
 // and which key to use as the "index"
 test.skip('Imperative 2', t => {
-  
-  const r1 = imperativeTranformer2(input,
+
+  const result = imperativeTranformer2(input,
     ['id', 'isEnabledForUser', 'isAvailableForOptIn'],
     ['feature', 'enabled', 'optin'],
     'feature'
   )
-  t.deepEqual(r1, expected)
+  t.deepEqual(result, expected)
 })

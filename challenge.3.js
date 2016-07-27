@@ -34,8 +34,7 @@ const set       = (k, v, record) => {
 // ==============================================
 
 // the goal is to turn a data structure that looks like input
-// into a structure that looks like expected using both
-// imperative and declarative styles
+// into a structure that looks like expected using a declarative style
 
 let input = [{
     'id': 'notes',
@@ -82,6 +81,6 @@ test.skip('Declarative 1', t => {
     ['feature', 'enabled', 'optin'],
     'feature'
   )
-  let r1 = f(input)
-  t.deepEqual(r1, expected)
+  let result = f(input)
+  t.deepEqual(result, expected)
 })

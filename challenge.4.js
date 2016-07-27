@@ -28,8 +28,8 @@ const set       = (k, v, record) => {
   record[k] = v
   return record
 }
-const getAmount = () => {// a fake function ...}
-const fetch     = () => {// a fake function ...}
+const getAmount = () => {/*a fake function ...*/}
+const fetch     = () => {/*a fake function ...*/}
 
 // ==============================================
 //
